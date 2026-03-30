@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Peshawari Chappal House</title>
+    <link rel="stylesheet" href="style.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7554219557678246"
+        crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" style="background:#fff;">
+        <a href="admin-dashboard.html" class="logo">Admin<span>Panel</span></a>
+        <div class="nav-links">
+            <a href="#" onclick="adminLogout(event)" class="btn btn-outline" style="padding:0.4rem 1rem">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active" onclick="switchTab('products', event)">📦 Products</a></li>
+                <li><a href="#" onclick="switchTab('orders', event)">🛒 Orders</a></li>
+                <li><a href="#" onclick="switchTab('users', event)">👥 Users</a></li>
+                <li><a href="index.html">🌐 View Store</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <!-- Products Tab -->
+            <div id="tab-products">
+                <div class="dashboard-header">
+                    <h2 style="color:var(--secondary)">Manage Products</h2>
+                    <button class="btn btn-primary" onclick="openAddProductModal()">+ Add New Chappal</button>
+                </div>
+                
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-products-table">
+                        <!-- Products rendered here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="tab-users" style="display:none;">
+                <div class="dashboard-header">
+                    <h2>Manage Users</h2>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Password</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-users-table">
+                        <!-- Users rendered here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Orders Tab -->
+            <div id="tab-orders" style="display:none;">
+                <div class="dashboard-header">
+                    <h2>Recent Orders</h2>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer Email</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-orders-table">
+                        <!-- Orders rendered here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal-overlay" id="product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add New Chappal</h2>
+                <button class="close-btn" onclick="closeProductModal()">&times;</button>
+            </div>
+            <form id="product-form">
+                <input type="hidden" id="prod-id">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="prod-name" required placeholder="e.g. Classic Brown Leather">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="prod-cat" required class="filter-select" style="width:100%; border-radius:8px">
+                        <option value="Classic">Classic</option>
+                        <option value="Premium">Premium</option>
+                        <option value="Special">Special</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Price (Rs.)</label>
+                    <input type="number" id="prod-price" required min="1" placeholder="e.g. 2500">
+                </div>
+                <div class="form-group">
+                    <label>Upload Image (URL or File)</label>
+                    <input type="text" id="prod-img-url" placeholder="Image URL (Unsplash/Web)">
+                    <p style="margin:0.5rem 0; font-size:0.9rem; color:var(--text-light); text-align:center;">OR</p>
+                    <input type="file" id="prod-img-file" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%">Save Chappal</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Protect Admin Route
+        if (safeStorage.getItem('adminSession') !== 'true') {
+            window.location.href = 'admin.html';
+        }
+
+        function adminLogout(e) {
+            e.preventDefault();
+            safeStorage.removeItem('adminSession');
+            window.location.href = 'admin.html';
+        }
+
+        function switchTab(tab, event) {
+            if(event) event.preventDefault();
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            if(event) event.target.classList.add('active');
+
+            document.getElementById('tab-products').style.display = tab === 'products' ? 'block' : 'none';
+            document.getElementById('tab-orders').style.display = tab === 'orders' ? 'block' : 'none';
+            document.getElementById('tab-users').style.display = tab === 'users' ? 'block' : 'none';
+
+            if (tab === 'users') loadAdminUsers();
+        }
+
+        function loadAdminProducts() {
+            const tbody = document.getElementById('admin-products-table');
+            tbody.innerHTML = '';
+            
+            // Reload from LS
+            const freshProducts = JSON.parse(safeStorage.getItem('products')) || [];
+
+            freshProducts.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${p.image}" class="admin-img"></td>
+                    <td><strong>${p.name}</strong></td>
+                    <td><span style="background:var(--background); padding:0.2rem 0.5rem; border-radius:4px; font-size:0.9rem">${p.category}</span></td>
+                    <td>Rs. ${p.price}</td>
+                    <td>
+                        <button class="btn btn-outline" style="padding:0.2rem 0.8rem; font-size:0.9rem" onclick="editProduct('${p.id}')">Edit</button>
+                        <button class="btn-outline" style="padding:0.2rem 0.8rem; font-size:0.9rem; color:var(--error); border-color:var(--error)" onclick="deleteProduct('${p.id}')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function loadAdminOrders() {
+            const tbody = document.getElementById('admin-orders-table');
+            tbody.innerHTML = '';
+            // Load fresh from LS
+            const allOrders = JSON.parse(safeStorage.getItem('orders')) || [];
+
+            if (allOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No orders placed yet.</td></tr>';
+                return;
+            }
+
+            allOrders.reverse().forEach(o => {
+                const itemList = o.items.map(i => `${i.name} (Sz: ${i.size})`).join(', ');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${o.id}</strong></td>
+                    <td>${o.date}</td>
+                    <td>
+                        <a href="mailto:${o.userEmail}">${o.userEmail}</a>
+                        ${o.shipping ? `<br><small style="color:var(--text-light); line-height:1.2; display:block; margin-top:5px;">📞 ${o.shipping.phone}<br>📍 ${o.shipping.address}, ${o.shipping.city}</small>` : ''}
+                    </td>
+                    <td style="max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${itemList}">${itemList}</td>
+                    <td><strong style="color:var(--primary)">Rs. ${o.total.toLocaleString()}</strong></td>
+                    <td>
+                        <select onchange="updateOrderStatus('${o.id}', this.value)" style="padding:0.2rem; border-radius:4px; font-weight:bold; color: ${o.status === 'Confirmed' ? 'green' : o.status === 'Cancelled' ? 'red' : 'orange'}">
+                            <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                            <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>
+                    <td><button class="btn-outline" style="padding:0.2rem 0.8rem; font-size:0.9rem; color:var(--error); border-color:var(--error)" onclick="deleteOrder('${o.id}')">Delete</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            let currentOrders = JSON.parse(safeStorage.getItem('orders')) || [];
+            let order = currentOrders.find(o => String(o.id) === String(id));
+            if (order) {
+                order.status = newStatus;
+                safeStorage.setItem('orders', JSON.stringify(currentOrders));
+                loadAdminOrders();
+                showNotification('Order status updated!');
+            }
+        }
+
+        function deleteOrder(id) {
+            if (confirm('Are you sure you want to delete this order?')) {
+                try {
+                    let currentOrders = JSON.parse(safeStorage.getItem('orders')) || [];
+                    currentOrders = currentOrders.filter(o => String(o.id) !== String(id));
+                    safeStorage.setItem('orders', JSON.stringify(currentOrders));
+                    loadAdminOrders();
+                    showNotification('Order deleted successfully');
+                } catch(e) {
+                    alert('Error deleting order: ' + e.message);
+                }
+            }
+        }
+
+        function loadAdminUsers() {
+            const tbody = document.getElementById('admin-users-table');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            const allUsers = JSON.parse(safeStorage.getItem('users')) || [];
+
+            if (allUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No users registered.</td></tr>';
+                return;
+            }
+
+            allUsers.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${u.name}</td>
+                    <td><strong>${u.username || '-'}</strong></td>
+                    <td>${u.email}</td>
+                    <td>${u.password}</td>
+                    <td><span style="background:var(--background); padding:0.2rem 0.5rem; border-radius:4px; font-size:0.9rem">${u.role || 'user'}</span></td>
+                    <td><button class="btn-outline" style="padding:0.2rem 0.8rem; font-size:0.9rem; color:var(--error); border-color:var(--error)" onclick="deleteUser('${u.email}')">Delete</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteUser(email) {
+            if (confirm('Are you sure you want to delete this user? This cannot be undone.')) {
+                try {
+                    let currentUsers = JSON.parse(safeStorage.getItem('users')) || [];
+                    currentUsers = currentUsers.filter(u => u.email !== email);
+                    safeStorage.setItem('users', JSON.stringify(currentUsers));
+                    loadAdminUsers();
+                    showNotification('User deleted successfully');
+                } catch(e) {
+                    alert('Error deleting user: ' + e.message);
+                }
+            }
+        }
+
+        function openAddProductModal() {
+            document.getElementById('product-form').reset();
+            document.getElementById('prod-id').value = '';
+            document.getElementById('modal-title').textContent = 'Add New Chappal';
+            document.getElementById('product-modal').classList.add('active');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.remove('active');
+        }
+
+        function editProduct(id) {
+            let currentProducts = JSON.parse(safeStorage.getItem('products')) || [];
+            let p = currentProducts.find(x => String(x.id) === String(id));
+            if(!p) return;
+            document.getElementById('prod-id').value = p.id;
+            document.getElementById('prod-name').value = p.name;
+            document.getElementById('prod-cat').value = p.category;
+            document.getElementById('prod-price').value = p.price;
+            document.getElementById('prod-img-url').value = p.image;
+            document.getElementById('modal-title').textContent = 'Edit Chappal';
+            document.getElementById('product-modal').classList.add('active');
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this chappal?')) {
+                try {
+                    let currentProducts = JSON.parse(safeStorage.getItem('products')) || [];
+                    currentProducts = currentProducts.filter(p => String(p.id) !== String(id));
+                    safeStorage.setItem('products', JSON.stringify(currentProducts));
+                    if (typeof products !== 'undefined') products = currentProducts;
+                    loadAdminProducts();
+                    showNotification('Product deleted successfully');
+                } catch(e) {
+                    alert('Error deleting product: ' + e.message);
+                }
+            }
+        }
+
+        // Form Submit
+        document.getElementById('product-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('prod-id').value;
+            const name = document.getElementById('prod-name').value;
+            const cat = document.getElementById('prod-cat').value;
+            const price = document.getElementById('prod-price').value;
+            const imgUrl = document.getElementById('prod-img-url').value;
+            const imgFile = document.getElementById('prod-img-file').files[0];
+
+            let finalImage = imgUrl || 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=600&auto=format&fit=crop'; // fallback
+
+            const processSave = (imageUrl) => {
+                let currentProducts = JSON.parse(safeStorage.getItem('products')) || [];
+                
+                if (id) {
+                    // Update
+                    const idx = currentProducts.findIndex(p => p.id === Number(id));
+                    if(idx !== -1) {
+                        currentProducts[idx] = { id: Number(id), name, category: cat, price, image: imageUrl };
+                    }
+                } else {
+                    // Create
+                    const newId = Date.now();
+                    currentProducts.push({ id: newId, name, category: cat, price, image: imageUrl });
+                }
+
+                safeStorage.setItem('products', JSON.stringify(currentProducts));
+                products = currentProducts; // Update global
+                closeProductModal();
+                loadAdminProducts();
+                showNotification(id ? 'Product updated successfully' : 'Product added successfully');
+            };
+
+            if (imgFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    processSave(e.target.result);
+                };
+                reader.readAsDataURL(imgFile);
+            } else {
+                processSave(finalImage);
+            }
+        });
+
+        // Init Data
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAdminProducts();
+            loadAdminOrders();
+        });
+    </script>
+</body>
+</html>

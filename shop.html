@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop | Peshawari Chappal House</title>
+    <link rel="stylesheet" href="style.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7554219557678246"
+        crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader"></div>
+    </div>
+    <script>
+        // Emergency Safety: Force hide loader after 3 seconds if main script fails
+        setTimeout(() => {
+            const l = document.querySelector('.loader-wrapper');
+            if (l) { l.style.opacity = '0'; setTimeout(() => l.style.display = 'none', 500); }
+        }, 3000);
+    </script>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">Peshawari<span>Chappal</span> House</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
+            <a href="login.html">Login</a>
+        </div>
+    </nav>
+
+    <div style="padding-top: 100px;"></div>
+
+    <section class="section">
+        <!-- Top Ad Unit -->
+        <div style="margin-bottom: 2rem; text-align: center;">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-7554219557678246"
+                 data-ad-slot="1765895508"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <h2 class="section-title">Our Collection</h2>
+        
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search chappals..." onkeyup="filterProducts()">
+            </div>
+            <div>
+                <select class="filter-select" id="price-sort" onchange="filterProducts()">
+                    <option value="">Sort by Price</option>
+                    <option value="asc">Low to High</option>
+                    <option value="desc">High to Low</option>
+                </select>
+                <select class="filter-select" id="category-filter" onchange="filterProducts()">
+                    <option value="">All Categories</option>
+                    <option value="Classic">Classic</option>
+                    <option value="Premium">Premium</option>
+                    <option value="Special">Special</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Catalog Ad Unit -->
+        <div style="margin: 2rem 0; text-align: center;">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-7554219557678246"
+                 data-ad-slot="1765895508"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <div class="product-grid" id="all-products">
+            <!-- Products injected via JS -->
+        </div>
+    </section>
+
+    <!-- Multiplex Recommendations Ad -->
+    <div style="padding: 3rem 5%; background: #fff; border-top: 1px solid var(--border);">
+        <h3 style="margin-bottom: 2rem; color: var(--secondary); text-align: center;">More Recommendations</h3>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-format="autorelaxed"
+             data-ad-client="ca-pub-7554219557678246"
+             data-ad-slot="2887405484"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-bottom">
+            &copy; 2026 Peshawari Chappal House. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        function renderShop(list) {
+            const grid = document.getElementById('all-products');
+            if (!grid) return;
+            if (list.length === 0) {
+                grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">No products found.</p>';
+                return;
+            }
+            let html = '';
+            list.forEach((item, index) => {
+                html += createProductCard(item);
+                if ((index + 1) % 3 === 0) html += getInFeedAdHtml();
+            });
+            grid.innerHTML = html;
+        }
+
+        function filterProducts() {
+            let filtered = [...products];
+            
+            // Search
+            const search = document.getElementById('search-input').value.toLowerCase();
+            if (search) {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+            }
+
+            // Category
+            const cat = document.getElementById('category-filter').value;
+            if (cat) {
+                filtered = filtered.filter(p => p.category === cat);
+            }
+
+            // Sort
+            const sort = document.getElementById('price-sort').value;
+            if (sort === 'asc') filtered.sort((a,b) => Number(a.price) - Number(b.price));
+            if (sort === 'desc') filtered.sort((a,b) => Number(b.price) - Number(a.price));
+
+            renderShop(filtered);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderShop(products);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peshawari Chappal House | Premium Traditional Footwear</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <meta name="description"
+        content="Premium quality traditional Peshawari chappals for men. Explore our exclusive collection of pure leather chappals.">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7554219557678246"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader"></div>
+    </div>
+    <script>
+        // Emergency Safety: Force hide loader after 3 seconds if main script fails
+        setTimeout(() => {
+            const l = document.querySelector('.loader-wrapper');
+            if (l) { l.style.opacity = '0'; setTimeout(() => l.style.display = 'none', 500); }
+        }, 3000);
+    </script>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">Peshawari<span>Chappal</span> House</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="shop.html">Shop</a>
+            <a href="login.html">Login</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Step into Tradition, Walk in Style</h1>
+            <p>Discover the finest handcrafted Peshawari chappals made from pure leather. Experience comfort and
+                elegance with every step you take.</p>
+            <a href="shop.html" class="btn btn-primary">Shop Collection Now</a>
+
+            <!-- Hero Ad Unit -->
+            <div style="margin-top: 2rem; width: 100%; max-width: 600px;">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7554219557678246"
+                    data-ad-slot="1765895508" data-ad-format="auto" data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
+    </header>
+
+    <!-- Featured Products Section -->
+    <section class="section" id="featured">
+        <h2 class="section-title">Featured Collection</h2>
+
+        <!-- Mid-Page Ad Unit -->
+        <div style="margin-bottom: 3rem; text-align: center;">
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7554219557678246"
+                data-ad-slot="1765895508" data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <div class="product-grid" id="featured-products">
+            <!-- Products injected via JS -->
+        </div>
+    </section>
+
+    <!-- Multiplex Ad Unit -->
+    <div style="padding: 3rem 5%; background: var(--background); border-top: 1px solid var(--border);">
+        <h3 style="margin-bottom: 2rem; color: var(--secondary); text-align: center;">Recommended For You</h3>
+        <ins class="adsbygoogle" style="display:block" data-ad-format="autorelaxed"
+            data-ad-client="ca-pub-7554219557678246" data-ad-slot="2887405484"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Peshawari Chappal House</h3>
+                <p>Premium handcrafted leather footwear bringing tradition to modern lifestyle.</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/profile.php?id=61580685230900" target="_blank">FB</a>
+                    <a href="https://www.instagram.com/pishawrichappalhouse/" target="_blank">IG</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <a href="index.html">Home</a>
+                <a href="shop.html">Shop Collection</a>
+                <a href="admin.html">Admin Portal</a>
+            </div>
+            <div class="footer-col">
+                <h3>Contact</h3>
+                <a href="mailto:pishawrichappalhouse@gmail.com">Email: pishawrichappalhouse@gmail.com</a>
+                <a href="tel:+923312865834">Phone: +92 331 2865834</a>
+                <a href="https://maps.google.com/?q=Mehmoodabad+No+05,Karachi,Pakistan" target="_blank">Location:
+                    Mehmoodabad No#05, Karachi, Pakistan</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Peshawari Chappal House. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('featured-products');
+            if (grid && products) {
+                // Show first 4 products
+                const featured = products.slice(0, 4);
+                let html = '';
+                featured.forEach((item, index) => {
+                    html += createProductCard(item);
+                    if (index === 1) html += getInFeedAdHtml();
+                });
+                grid.innerHTML = html;
+            }
+        });
+    </script>
+</body>
+
+</html>

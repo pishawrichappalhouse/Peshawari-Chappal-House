@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Peshawari Chappal House</title>
+    <link rel="stylesheet" href="style.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7554219557678246"
+        crossorigin="anonymous"></script>
+    <style>
+        .profile-header {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: 700;
+        }
+        .profile-info h1 { margin-bottom: 0.5rem; color: var(--secondary); }
+        .profile-info p { color: var(--text-light); }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="index.html" class="logo">Peshawari<span>Chappal</span> House</a>
+        <div class="nav-links">
+            <!-- Dynamically populated -->
+        </div>
+    </nav>
+
+    <div style="padding-top: 100px; min-height: 80vh;">
+        <div style="max-width: 1000px; margin: 0 auto; padding: 2rem 5%;">
+            
+            <div class="profile-header">
+                <div class="profile-avatar" id="prof-initial">U</div>
+                <div class="profile-info">
+                    <h1 id="prof-name">User Name</h1>
+                    <p><strong>Username:</strong> <span id="prof-username">johndoe</span></p>
+                    <p><strong>Email:</strong> <span id="prof-email">email@example.com</span></p>
+                </div>
+            </div>
+
+            <h2 style="color: var(--secondary); margin-bottom: 1.5rem;">My Order History</h2>
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-orders-table">
+                        <!-- User orders go here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Profile Page Ad -->
+            <div style="margin-top: 3rem; text-align: center;">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-7554219557678246"
+                     data-ad-slot="1765895508"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-bottom">
+            &copy; 2026 Peshawari Chappal House. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.getElementById('prof-name').textContent = currentUser.name;
+            document.getElementById('prof-email').textContent = currentUser.email;
+            document.getElementById('prof-username').textContent = currentUser.username || 'Not set';
+            document.getElementById('prof-initial').textContent = currentUser.name.charAt(0).toUpperCase();
+
+            // Load Orders
+            const userOrders = orders.filter(o => o.userEmail === currentUser.email).reverse();
+            const tbody = document.getElementById('user-orders-table');
+            
+            if (userOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">You have no past orders. <br><br><a href="shop.html" class="btn btn-primary" style="margin-top:1rem;">Start Shopping</a></td></tr>';
+                return;
+            }
+
+            userOrders.forEach(o => {
+                const itemList = o.items.map(i => `${i.name} (Sz: ${i.size})`).join('<br>');
+                const tr = document.createElement('tr');
+                
+                let actionBtn = '';
+                if (o.status === 'Pending') {
+                    actionBtn = `<button class="btn-outline" style="padding:0.2rem 0.6rem; font-size:0.8rem; border-color:var(--error); color:var(--error)" onclick="cancelMyOrder('${o.id}')">Cancel</button>`;
+                }
+
+                tr.innerHTML = `
+                    <td><strong>${o.id}</strong></td>
+                    <td>${o.date}</td>
+                    <td>${itemList}</td>
+                    <td><strong>Rs. ${o.total.toLocaleString()}</strong></td>
+                    <td><span style="background:${o.status==='Confirmed'?'green':o.status==='Cancelled'?'#d32f2f':'var(--primary)'}; color:white; padding:0.2rem 0.5rem; border-radius:4px; font-size:0.9rem">${o.status}</span></td>
+                    <td>${actionBtn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+
+        function cancelMyOrder(orderId) {
+            if (confirm('Are you sure you want to cancel this order?')) {
+                let allOrders = JSON.parse(safeStorage.getItem('orders')) || [];
+                let orderIndex = allOrders.findIndex(o => String(o.id) === String(orderId) && o.userEmail === currentUser.email);
+                
+                if (orderIndex !== -1) {
+                    allOrders[orderIndex].status = 'Cancelled';
+                    safeStorage.setItem('orders', JSON.stringify(allOrders));
+                    orders = allOrders; // update global array
+                    showNotification('Order cancelled successfully', 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
